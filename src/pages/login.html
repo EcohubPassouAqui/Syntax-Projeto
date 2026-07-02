@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syntax</title>
+<link rel="icon" type="image/png" href="/image/Syntax.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="/styles/login.css">
+</head>
+<body>
+<div class="page">
+    <div class="login-wrap">
+
+        <div class="logo-area">
+            <img src="/image/Syntaxicon.jpg" alt="logo" class="logo-img" id="logoImg"
+                 onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';">
+            <div class="logo-fallback" id="logoFallback" style="display:none;">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M12 9v6"/></svg>
+            </div>
+            <span class="brand-name">syntax</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-area">
+            <div class="form-group">
+                <label class="form-label" for="tokenInput">token discord</label>
+                <div class="input-row">
+                    <input type="password" id="tokenInput"
+                           placeholder="cole ou digite seu token"
+                           autocomplete="off" spellcheck="false">
+                    <button class="toggle-vis" id="toggleVis" type="button" tabindex="-1" aria-label="mostrar token">
+                        <svg id="eyeIcon" viewBox="0 0 24 24">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-submit" id="submitBtn" type="button">conectar</button>
+
+            <p class="status-line" id="statusLine">aguardando</p>
+        </div>
+
+    </div>
+</div>
+
+<span class="footer">syntax &nbsp;&middot;&nbsp; v1.0.0</span>
+
+<script>
+class Login {
+    constructor() {
+        this.tokenInput = document.getElementById('tokenInput');
+        this.toggleVis  = document.getElementById('toggleVis');
+        this.eyeIcon    = document.getElementById('eyeIcon');
+        this.submitBtn  = document.getElementById('submitBtn');
+        this.statusLine = document.getElementById('statusLine');
+        this.visivel    = false;
+        this.reset();
+        this.bind();
+    }
+
+    reset() {
+        this.tokenInput.value = '';
+        this.submitBtn.disabled = false;
+        this.submitBtn.className = 'btn-submit';
+        this.submitBtn.textContent = 'conectar';
+        this.statusLine.textContent = 'aguardando';
+        this.statusLine.className = 'status-line';
+        this.visivel = false;
+        this.tokenInput.type = 'password';
+        this.eyeIcon.innerHTML = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+    }
+
+    bind() {
+        this.toggleVis.addEventListener('click', () => this.toggleVisibility());
+        this.submitBtn.addEventListener('click', () => this.submit());
+        this.tokenInput.addEventListener('keydown', e => { if (e.key === 'Enter') this.submit(); });
+        window.addEventListener('pageshow', e => { if (e.persisted) this.reset(); });
+    }
+
+    toggleVisibility() {
+        this.visivel = !this.visivel;
+        this.tokenInput.type = this.visivel ? 'text' : 'password';
+        const open   = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>';
+        const closed = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        this.eyeIcon.innerHTML = this.visivel ? closed : open;
+    }
+
+    setStatus(msg, cls) {
+        this.statusLine.textContent = msg;
+        this.statusLine.className = 'status-line' + (cls ? ' ' + cls : '');
+    }
+
+    setBtn(state, label) {
+        this.submitBtn.className = 'btn-submit' + (state ? ' state-' + state : '');
+        if (state === 'loading') {
+            this.submitBtn.innerHTML = '<span class="spinner"></span>' + label;
+        } else {
+            this.submitBtn.textContent = label;
+        }
+    }
+
+    async submit() {
+        const token = this.tokenInput.value.trim();
+
+        if (!token) {
+            this.setBtn('err', 'conectar');
+            this.setStatus('insira o token antes de continuar', 'err');
+            return;
+        }
+        if (token.length < 10) {
+            this.setBtn('err', 'conectar');
+            this.setStatus('token muito curto', 'err');
+            return;
+        }
+
+        this.submitBtn.disabled = true;
+        this.setBtn('loading', 'verificando');
+        this.setStatus('conectando ao discord...', 'loading');
+
+        try {
+            const r = await fetch('https://discord.com/api/v10/users/@me', {
+                headers: { Authorization: token }
+            });
+
+            if (!r.ok) {
+                const status = r.status;
+                if (status === 401) throw new Error('token invalido ou expirado');
+                if (status === 429) throw new Error('muitas tentativas, aguarde');
+                throw new Error('falha na autenticacao (' + status + ')');
+            }
+
+            const user = await r.json();
+            const tag  = user.global_name || user.username;
+
+            sessionStorage.setItem('discord_token', token);
+            sessionStorage.setItem('discord_user', JSON.stringify(user));
+
+            this.setBtn('ok', 'conectado');
+            this.setStatus('bem-vindo, ' + tag, 'ok');
+            setTimeout(() => { window.location.replace('/pages/panel.html'); }, 1000);
+
+        } catch (e) {
+            const msg = e.message || 'falha na conexao';
+            this.setBtn('err', 'tentar novamente');
+            this.setStatus(msg, 'err');
+            this.submitBtn.disabled = false;
+
+            if (msg.includes('invalido') || msg.includes('expirado') || msg.includes('autenticacao')) {
+                setTimeout(() => { window.location.replace('/pages/erro.html'); }, 1800);
+            }
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => { new Login(); });
+</script>
+</body>
+</html>

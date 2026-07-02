@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Syntax — 404</title>
+<link rel="icon" type="image/png" href="/image/Syntax.png">
+<link rel="stylesheet" href="/styles/erro.css">
+</head>
+<body>
+
+<div class="error-wrap">
+
+    <svg class="error-illustration" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <circle cx="36" cy="36" r="26" stroke="#222222" stroke-width="1"/>
+        <g class="orbit">
+            <ellipse cx="36" cy="36" rx="26" ry="10" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="3 4"/>
+        </g>
+        <g class="orbit-inner">
+            <ellipse cx="36" cy="36" rx="14" ry="5" stroke="#2e2e2e" stroke-width="1" stroke-dasharray="2 3"/>
+        </g>
+        <circle cx="36" cy="36" r="3" fill="#333333"/>
+        <circle class="pulse-dot" cx="62" cy="36" r="2" fill="#3a3a3a"/>
+        <circle cx="36" cy="10" r="1.5" fill="#2a2a2a"/>
+    </svg>
+
+    <div class="error-code">404</div>
+    <span class="error-label">pagina nao encontrada</span>
+
+    <div class="error-divider"></div>
+
+    <span class="error-msg">esse caminho nao existe mais — pode ter sido movido ou removido</span>
+
+    <div class="error-actions">
+        <a class="error-back" href="/pages/login.html">voltar ao login</a>
+        <div class="error-countdown">
+            <span id="countdown-text" class="error-countdown-text" role="status" aria-live="polite">redirecionando em 10s</span>
+            <div class="error-countdown-bar">
+                <div id="countdown-fill" class="error-countdown-fill"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<span class="error-footer">erro 404 &nbsp;&middot;&nbsp; syntax</span>
+
+<script>
+(() => {
+    const SECONDS = 10;
+    const REDIRECT_URL = '/pages/login.html';
+
+    const textEl = document.getElementById('countdown-text');
+    const fillEl = document.getElementById('countdown-fill');
+
+    let remaining = SECONDS;
+    let interval = null;
+    let redirected = false;
+
+    function updateUI() {
+        textEl.textContent = remaining > 0
+            ? `redirecionando em ${remaining}s`
+            : 'redirecionando...';
+        fillEl.style.transform = `scaleX(${Math.max(remaining, 0) / SECONDS})`;
+    }
+
+    function redirect() {
+        if (redirected) return;
+        redirected = true;
+        window.location.href = REDIRECT_URL;
+    }
+
+    function tick() {
+        remaining -= 1;
+        updateUI();
+        if (remaining <= 0) {
+            stop();
+            redirect();
+        }
+    }
+
+    function start() {
+        if (interval) return;
+        interval = setInterval(tick, 1000);
+    }
+
+    function stop() {
+        clearInterval(interval);
+        interval = null;
+    }
+
+    // Pausa o contador se a aba perder o foco (evita redirecionar sozinho enquanto o usuario esta em outra aba) e retoma ao voltar
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stop();
+        } else {
+            start();
+        }
+    });
+
+    updateUI();
+    start();
+})();
+</script>
+
+</body>
+</html>

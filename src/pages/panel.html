@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syntax — Clonar</title>
+<link rel="icon" type="image/png" href="/image/Syntax.png">
+<link rel="stylesheet" href="/styles/panel.css">
+</head>
+<body>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<div class="layout">
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <img src="/image/Syntax.png" alt="logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-name">syntax</span>
+      </div>
+      <button id="sidebarToggle" class="sidebar-toggle" title="Ctrl+B">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="serverSearch" class="search-input" type="text" placeholder="pesquisar..." autocomplete="off">
+    </div>
+
+    <div class="sidebar-scroll">
+      <div class="server-group">
+        <div class="group-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          com acesso
+          <span class="group-count" id="countAccess">0</span>
+        </div>
+        <div id="myServers" class="server-list">
+          <div class="skeleton-list">
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+          </div>
+        </div>
+      </div>
+      <div class="server-group">
+        <div class="group-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          todos os servidores
+          <span class="group-count" id="countAll">0</span>
+        </div>
+        <div id="otherServers" class="server-list">
+          <div class="skeleton-list">
+            <div class="skeleton-item"></div>
+            <div class="skeleton-item"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="session-info">
+        <div class="session-avatar" id="sessionAvatar"></div>
+        <div class="session-meta">
+          <div class="session-name" id="sessionName">carregando...</div>
+          <div class="session-status">
+            <span class="status-dot"></span>
+            <span id="sessionVersion">v3.0.0</span>
+          </div>
+        </div>
+        <div class="footer-btns">
+          <button class="btn-icon-sm" id="historyBtn" title="Historico Ctrl+H">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><polyline points="12 7 12 12 16 14"/></svg>
+          </button>
+          <button class="btn-icon-sm" id="settingsBtn" title="Configuracoes Ctrl+,">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          </button>
+          <button class="btn-icon-sm danger" id="logoutBtn" title="Sair">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <button class="btn-icon sidebar-open-btn hidden" id="sidebarOpenBtn" title="Abrir sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="main-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        clonar servidor
+      </div>
+      <button id="reloadBtn" class="btn-icon" title="Recarregar Ctrl+R">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>
+      </button>
+    </div>
+
+    <div class="main-body">
+
+      <div class="col-left">
+
+        <div class="section-card">
+          <div class="card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            selecionar servidores
+          </div>
+          <div class="selection-grid">
+            <div class="server-slot">
+              <div class="slot-tag">destino</div>
+              <div class="slot-desc">servidor que vai receber a clonagem</div>
+              <div id="destinationServer" class="slot-picker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>clique para selecionar</span>
+              </div>
+            </div>
+            <div class="selection-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+            <div class="server-slot">
+              <div class="slot-tag origin">origem</div>
+              <div class="slot-desc">servidor a ser clonado</div>
+              <div id="originServer" class="slot-picker">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>clique para selecionar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            etapas da clonagem
+          </div>
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <div class="step-info">
+                <div class="step-title">nome e icone</div>
+                <div class="step-desc">renomeia destino e copia icone e banner da origem</div>
+              </div>
+              <div class="step-status" id="stepStatus1">aguardando</div>
+            </div>
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <div class="step-info">
+                <div class="step-title">limpeza do destino</div>
+                <div class="step-desc">remove canais, cargos, emojis e figurinhas do destino</div>
+              </div>
+              <div class="step-status" id="stepStatus2">aguardando</div>
+            </div>
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <div class="step-info">
+                <div class="step-title">criacao da estrutura</div>
+                <div class="step-desc">cria categorias, canais, cargos, emojis e figurinhas</div>
+              </div>
+              <div class="step-status" id="stepStatus3">aguardando</div>
+            </div>
+          </div>
+          <div class="clone-action-wrap">
+            <div id="progressWrap" class="progress-wrap hidden">
+              <div class="progress-header">
+                <span id="progressText">aguardando...</span>
+                <span id="progressPct">0%</span>
+              </div>
+              <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+              <div id="progressStage" class="progress-stage"></div>
+            </div>
+            <button id="cloneBtn" class="btn-clone" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              clonar servidor
+              <span class="btn-shortcut">Ctrl+Enter</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="section-card console-card">
+          <div class="card-header">
+            <div class="header-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              console
+            </div>
+            <div class="console-actions">
+              <button class="console-btn" id="exportLogsBtn" title="Exportar logs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+              <button class="console-btn" id="clearLogsBtn" title="Limpar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="console-filters">
+            <button class="filter-btn active" data-filter="all">todos</button>
+            <button class="filter-btn" data-filter="add">add</button>
+            <button class="filter-btn" data-filter="remove">remove</button>
+            <button class="filter-btn" data-filter="info">info</button>
+            <button class="filter-btn" data-filter="warn">warn</button>
+            <button class="filter-btn" data-filter="error">error</button>
+          </div>
+          <div id="consoleOutput" class="console-output"></div>
+        </div>
+
+      </div>
+
+      <div class="col-right">
+
+        <div class="section-card">
+          <div class="card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            exportar emojis e figurinhas
+          </div>
+          <div class="webhook-section">
+            <div class="zip-tabs">
+              <button class="zip-tab active" data-type="emojis">emojis</button>
+              <button class="zip-tab" data-type="stickers">figurinhas</button>
+            </div>
+            <div class="webhook-field">
+              <label class="field-label">servidor de origem</label>
+              <div id="zipOriginServer" class="slot-picker slot-picker-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>selecionar servidor</span>
+              </div>
+            </div>
+            <div class="webhook-field">
+              <label class="field-label">webhook url (opcional)</label>
+              <input id="webhookUrl" class="field-input" type="text" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            <button id="downloadZipBtn" class="btn-action" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              baixar .zip
+            </button>
+            <button id="sendWebhookBtn" class="btn-action" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+              enviar via webhook
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="contextMenu" class="context-menu hidden">
+  <button class="ctx-item" id="ctxSetOrigin">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    <span>usar como origem</span>
+  </button>
+  <button class="ctx-item" id="ctxSetDest">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>usar como destino</span>
+  </button>
+  <div class="ctx-divider"></div>
+  <button class="ctx-item" id="ctxFavorite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <span id="ctxFavLabel">favoritar</span>
+  </button>
+</div>
+
+<div id="historyPanel" class="side-panel hidden">
+  <div class="side-panel-header">
+    <div class="side-panel-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><polyline points="12 7 12 12 16 14"/></svg>
+      historico
+    </div>
+    <button class="side-panel-close" id="historyClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="historyList" class="side-panel-content"></div>
+</div>
+
+<div id="settingsPanel" class="side-panel hidden">
+  <div class="side-panel-header">
+    <div class="side-panel-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      configuracoes
+    </div>
+    <button class="side-panel-close" id="settingsClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="side-panel-content">
+    <div class="settings-group">
+      <div class="settings-label">clonagem</div>
+      <div class="settings-row">
+        <span>confirmar antes de clonar</span>
+        <label class="toggle"><input type="checkbox" id="settingConfirm" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="settings-row">
+        <span>salvar historico</span>
+        <label class="toggle"><input type="checkbox" id="settingHistory" checked><span class="toggle-track"></span></label>
+      </div>
+    </div>
+    <div class="settings-group">
+      <div class="settings-label">atalhos</div>
+      <div class="shortcuts-list">
+        <div class="shortcut-row"><kbd>Ctrl+Enter</kbd><span>iniciar clonagem</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+R</kbd><span>recarregar servidores</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+B</kbd><span>sidebar</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+H</kbd><span>historico</span></div>
+        <div class="shortcut-row"><kbd>Ctrl+,</kbd><span>configuracoes</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span>fechar paineis</span></div>
+      </div>
+    </div>
+    <button class="btn-danger" id="clearHistoryBtn">limpar historico</button>
+  </div>
+</div>
+
+<div id="overlay" class="overlay hidden"></div>
+
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-title">confirmar clonagem</div>
+    <div class="modal-body" id="confirmBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="confirmCancel">cancelar</button>
+      <button class="btn-primary" id="confirmOk">confirmar e clonar</button>
+    </div>
+  </div>
+</div>
+
+<div id="serverPickerModal" class="modal hidden">
+  <div class="modal-box picker-box">
+    <div class="modal-title" id="pickerTitle">selecionar servidor</div>
+    <div class="picker-tabs" id="pickerTabs"></div>
+    <input class="picker-search" id="pickerSearch" type="text" placeholder="pesquisar...">
+    <div id="pickerList" class="picker-list"></div>
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip hidden"></div>
+
+<script>
+const VERSION = 'v1.0.0';
+
+const state = {
+  origin: null,
+  destination: null,
+  zipOrigin: null,
+  zipType: 'emojis',
+  cloning: false,
+  allServers: [],
+  favorites: JSON.parse(localStorage.getItem('fav') || '[]'),
+  history: JSON.parse(localStorage.getItem('cloneHist') || '[]'),
+  ctxServer: null,
+  currentFilter: 'all',
+  logLines: [],
+  pickerCallback: null,
+  pickerMode: 'all'
+};
+
+const token = sessionStorage.getItem('discord_token') || '';
+const $ = (id) => document.getElementById(id);
+const mk = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+const ts = () => new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+const LOG_PREFIX = { add: '[+]', remove: '[-]', info: '[i]', warn: '[!]', error: '[x]', ok: '[v]', step: '[>]' };
+
+const log = (msg, type = 'info') => {
+  const entry = { msg, type, time: ts() };
+  state.logLines.push(entry);
+  if (state.currentFilter === 'all' || state.currentFilter === type) appendLine(entry);
+};
+
+const appendLine = (entry) => {
+  const out = $('consoleOutput');
+  const line = mk('div', 'cline ' + entry.type);
+  const t = mk('span', 'ctime'); t.textContent = entry.time;
+  const txt = mk('span', 'ctxt'); txt.textContent = entry.msg;
+  line.appendChild(t); line.appendChild(txt);
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+};
+
+const renderConsole = () => {
+  const out = $('consoleOutput');
+  out.innerHTML = '';
+  state.logLines.filter((e) => state.currentFilter === 'all' || e.type === state.currentFilter).forEach(appendLine);
+};
+
+const exportLogs = () => {
+  const text = state.logLines.map((e) => '[' + e.time + '] ' + (LOG_PREFIX[e.type] || '[i]') + ' ' + e.msg).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+  a.download = 'clone-' + Date.now() + '.txt';
+  a.click();
+  toast('logs exportados', 'ok');
+};
+
+const toast = (msg, type = 'info') => {
+  const c = $('toastContainer');
+  const t = mk('div', 'toast ' + type);
+  t.textContent = msg;
+  c.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
+};
+
+const makeAv = (server, size = 28) => {
+  const w = mk('div', 'av');
+  w.style.cssText = `width:${size}px;height:${size}px;border-radius:4px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${Math.round(size * 0.38)}px;flex-shrink:0;overflow:hidden;color:#4a4a4a;font-family:Inter,sans-serif`;
+  if (server.icon) {
+    const img = mk('img');
+    img.src = server.icon;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+    img.onerror = () => { w.removeChild(img); w.textContent = server.name.charAt(0).toUpperCase(); };
+    w.appendChild(img);
+  } else {
+    w.textContent = server.name.charAt(0).toUpperCase();
+  }
+  return w;
+};
+
+const updateCloneBtn = () => {
+  $('cloneBtn').disabled = !(state.origin && state.destination && !state.cloning);
+};
+
+const updateZipBtn = () => {
+  const hasServer = !!state.zipOrigin;
+  const webhookUrl = $('webhookUrl').value.trim();
+  $('downloadZipBtn').disabled = !hasServer;
+  $('sendWebhookBtn').disabled = !(hasServer && webhookUrl.startsWith('https://discord.com/api/webhooks/'));
+};
+
+const renderSlot = (slotId, server) => {
+  const slot = $(slotId);
+  if (!server) {
+    slot.classList.remove('filled');
+    slot.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span>clique para selecionar</span>`;
+    return;
+  }
+  slot.classList.add('filled');
+  slot.innerHTML = '';
+  const row = mk('div', 'slot-row');
+  const av = makeAv(server, slotId.includes('Server') && !slotId.includes('Origin') && !slotId.includes('origin') && !slotId.includes('zip') ? 38 : 28);
+  const info = mk('div', 'slot-info');
+  const name = mk('div', 'slot-name'); name.textContent = server.name;
+  const id = mk('div', 'slot-id'); id.textContent = server.id;
+  info.appendChild(name); info.appendChild(id);
+  row.appendChild(av); row.appendChild(info);
+  slot.appendChild(row);
+};
+
+const setStepStatus = (step, status) => {
+  const el = $('stepStatus' + step);
+  if (!el) return;
+  el.textContent = status;
+  el.className = 'step-status' + (status === 'concluido' ? ' done' : status === 'em andamento' ? ' running' : status === 'erro' ? ' err' : '');
+};
+
+const renderSidebarList = (divId, servers, selectable) => {
+  const container = $(divId);
+  container.innerHTML = '';
+  if (!servers.length) {
+    const e = mk('div', 'empty-msg'); e.textContent = 'nenhum servidor'; container.appendChild(e); return;
+  }
+  servers.forEach((s) => {
+    const item = mk('div', 'server-item');
+    item.dataset.id = s.id;
+    if (state.favorites.indexOf(s.id) >= 0) item.classList.add('fav');
+    if (!s.hasAccess) item.classList.add('no-access');
+    const av = makeAv(s);
+    const name = mk('div', 'server-item-name'); name.textContent = s.name;
+    item.appendChild(av); item.appendChild(name);
+    if (state.favorites.indexOf(s.id) >= 0) {
+      const star = mk('span', 'fav-star');
+      star.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="10" height="10"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+      item.appendChild(star);
+    }
+    if (selectable) {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.server-item.active').forEach((i) => i.classList.remove('active'));
+        item.classList.add('active');
+        state.origin = s;
+        renderSlot('originServer', s);
+        updateCloneBtn();
+        log('origem definida: ' + s.name, 'info');
+      });
+    }
+    item.addEventListener('contextmenu', (e) => { e.preventDefault(); openCtx(e.clientX, e.clientY, s); });
+    container.appendChild(item);
+  });
+};
+
+const filterSidebar = (q) => {
+  q = q.toLowerCase();
+  const access = state.allServers.filter((s) => s.hasAccess && s.name.toLowerCase().includes(q));
+  const all = state.allServers.filter((s) => s.name.toLowerCase().includes(q));
+  renderSidebarList('myServers', access, true);
+  renderSidebarList('otherServers', all, true);
+  $('countAccess').textContent = access.length;
+  $('countAll').textContent = all.length;
+};
+
+const loadServers = async () => {
+  log('carregando servidores...', 'info');
+  $('myServers').innerHTML = `<div class="skeleton-list"><div class="skeleton-item"></div><div class="skeleton-item"></div><div class="skeleton-item"></div></div>`;
+  $('otherServers').innerHTML = `<div class="skeleton-list"><div class="skeleton-item"></div><div class="skeleton-item"></div></div>`;
+  try {
+    const r = await fetch('/api/servers', { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) throw new Error('falha ao carregar');
+    const data = await r.json();
+    state.allServers = data.servers || [];
+    const access = state.allServers.filter((s) => s.hasAccess);
+    renderSidebarList('myServers', access, true);
+    renderSidebarList('otherServers', state.allServers, true);
+    $('countAccess').textContent = access.length;
+    $('countAll').textContent = state.allServers.length;
+    log(access.length + ' servidor(es) com acesso | ' + state.allServers.length + ' no total', 'ok');
+  } catch (e) {
+    log('erro ao carregar servidores: ' + e.message, 'error');
+    toast('erro ao carregar servidores', 'error');
+  }
+};
+
+const openCtx = (x, y, server) => {
+  state.ctxServer = server;
+  const menu = $('contextMenu');
+  menu.classList.remove('hidden');
+  menu.style.left = Math.min(x, window.innerWidth - 185) + 'px';
+  menu.style.top = Math.min(y, window.innerHeight - 130) + 'px';
+  $('ctxFavLabel').textContent = state.favorites.indexOf(server.id) >= 0 ? 'desfavoritar' : 'favoritar';
+  $('ctxSetDest').style.opacity = server.hasAccess ? '' : '0.3';
+  $('ctxSetDest').style.pointerEvents = server.hasAccess ? '' : 'none';
+};
+
+const closeCtx = () => { $('contextMenu').classList.add('hidden'); state.ctxServer = null; };
+
+const openPicker = (mode, title, callback) => {
+  state.pickerCallback = callback;
+  state.pickerMode = mode;
+  $('pickerTitle').textContent = title;
+  $('pickerSearch').value = '';
+  $('pickerTabs').innerHTML = '';
+  let servers;
+  if (mode === 'access') {
+    servers = state.allServers.filter((s) => s.hasAccess);
+  } else {
+    servers = state.allServers;
+    const tabAll = mk('button', 'picker-tab active');
+    tabAll.textContent = 'todos (' + state.allServers.length + ')';
+    const tabAccess = mk('button', 'picker-tab');
+    tabAccess.textContent = 'com acesso (' + state.allServers.filter((s) => s.hasAccess).length + ')';
+    tabAll.addEventListener('click', () => { tabAll.classList.add('active'); tabAccess.classList.remove('active'); renderPickerList(state.allServers, $('pickerSearch').value); });
+    tabAccess.addEventListener('click', () => { tabAccess.classList.add('active'); tabAll.classList.remove('active'); renderPickerList(state.allServers.filter((s) => s.hasAccess), $('pickerSearch').value); });
+    $('pickerTabs').appendChild(tabAll);
+    $('pickerTabs').appendChild(tabAccess);
+  }
+  renderPickerList(servers, '');
+  $('pickerSearch').oninput = function () {
+    const activeBtns = $('pickerTabs').querySelectorAll('.picker-tab.active');
+    let base = (mode === 'access' || (activeBtns.length && activeBtns[0].textContent.startsWith('com acesso')))
+      ? state.allServers.filter((s) => s.hasAccess)
+      : state.allServers;
+    renderPickerList(base, this.value);
+  };
+  $('serverPickerModal').classList.remove('hidden');
+  $('overlay').classList.remove('hidden');
+  setTimeout(() => $('pickerSearch').focus(), 40);
+};
+
+const renderPickerList = (servers, q) => {
+  const list = $('pickerList');
+  list.innerHTML = '';
+  q = (q || '').toLowerCase();
+  const filtered = q ? servers.filter((s) => s.name.toLowerCase().includes(q)) : servers;
+  if (!filtered.length) { const e = mk('div', 'empty-msg'); e.textContent = 'nenhum servidor'; list.appendChild(e); return; }
+  filtered.forEach((s) => {
+    const item = mk('div', 'picker-item');
+    if (!s.hasAccess) item.classList.add('picker-no-access');
+    const av = makeAv(s, 32);
+    const info = mk('div', 'picker-info');
+    const name = mk('div', 'picker-name'); name.textContent = s.name;
+    info.appendChild(name);
+    if (!s.hasAccess) { const badge = mk('span', 'no-access-badge'); badge.textContent = 'sem acesso adm'; info.appendChild(badge); }
+    item.appendChild(av); item.appendChild(info);
+    item.addEventListener('click', () => { closePicker(); if (state.pickerCallback) state.pickerCallback(s); });
+    list.appendChild(item);
+  });
+};
+
+const closePicker = () => { $('serverPickerModal').classList.add('hidden'); $('overlay').classList.add('hidden'); };
+
+const closeAllPanels = () => {
+  $('historyPanel').classList.add('hidden');
+  $('settingsPanel').classList.add('hidden');
+  $('confirmModal').classList.add('hidden');
+  $('serverPickerModal').classList.add('hidden');
+  $('overlay').classList.add('hidden');
+  closeCtx();
+};
+
+const openHistory = () => {
+  const list = $('historyList');
+  list.innerHTML = '';
+  if (!state.history.length) {
+    const e = mk('div', 'empty-msg'); e.textContent = 'nenhuma clonagem registrada'; list.appendChild(e);
+  } else {
+    [...state.history].reverse().forEach((h) => {
+      const item = mk('div', 'history-item');
+      const header = mk('div', 'history-header');
+      const time = mk('span', 'history-time'); time.textContent = h.time;
+      const status = mk('span', 'history-status ' + (h.success ? 'success' : 'error'));
+      status.textContent = h.success ? 'sucesso' : 'erro';
+      header.appendChild(time); header.appendChild(status);
+      const body = mk('div', 'history-body');
+      const from = mk('div', 'history-row'); from.innerHTML = '<span>origem</span><b>' + h.origin + '</b>';
+      const to = mk('div', 'history-row'); to.innerHTML = '<span>destino</span><b>' + h.dest + '</b>';
+      body.appendChild(from); body.appendChild(to);
+      item.appendChild(header); item.appendChild(body);
+      list.appendChild(item);
+    });
+  }
+  $('historyPanel').classList.remove('hidden');
+  $('overlay').classList.remove('hidden');
+};
+
+const saveHistory = (entry) => {
+  state.history.push(entry);
+  if (state.history.length > 50) state.history.shift();
+  localStorage.setItem('cloneHist', JSON.stringify(state.history));
+};
+
+const setProgress = (text, pct, stage) => {
+  $('progressWrap').classList.remove('hidden');
+  $('progressText').textContent = text;
+  $('progressPct').textContent = pct + '%';
+  $('progressBar').style.width = pct + '%';
+  if (stage) $('progressStage').textContent = stage;
+};
+
+const hideProgress = () => $('progressWrap').classList.add('hidden');
+
+const detectStep = (stage) => {
+  if (!stage) return;
+  if (stage.includes('nome') || stage.includes('icone')) { setStepStatus(1, 'em andamento'); }
+  else if (stage.includes('limpando') || stage.includes('removendo')) { setStepStatus(1, 'concluido'); setStepStatus(2, 'em andamento'); }
+  else if (stage.includes('criando') || stage.includes('copiando')) { setStepStatus(2, 'concluido'); setStepStatus(3, 'em andamento'); }
+  else if (stage.includes('finalizado')) { setStepStatus(3, 'concluido'); }
+};
+
+const performClone = async () => {
+  if (!state.origin || !state.destination || state.cloning) return;
+  if ($('settingConfirm').checked) {
+    $('confirmBody').innerHTML = `<p>clonar de <b>${state.origin.name}</b> para <b>${state.destination.name}</b>?</p><p class="confirm-note">todos os canais, cargos e emojis do destino serao removidos antes de clonar</p>`;
+    $('confirmModal').classList.remove('hidden');
+    $('overlay').classList.remove('hidden');
+    return;
+  }
+  executeClone();
+};
+
+const executeClone = async () => {
+  closeAllPanels();
+  state.cloning = true;
+  const btn = $('cloneBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  setStepStatus(1, 'aguardando');
+  setStepStatus(2, 'aguardando');
+  setStepStatus(3, 'aguardando');
+  log('iniciando clonagem...', 'step');
+  log('origem: ' + state.origin.name + ' (' + state.origin.id + ')', 'info');
+  log('destino: ' + state.destination.name + ' (' + state.destination.id + ')', 'info');
+  setProgress('iniciando...', 0, 'preparando');
+  try {
+    const r = await fetch('/api/clone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ originId: state.origin.id, destinationId: state.destination.id })
+    });
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const event = JSON.parse(line);
+          if (event.type === 'log') { log(event.msg, event.level); }
+          else if (event.type === 'progress') { setProgress(event.text, event.pct, event.stage); detectStep(event.stage); }
+          else if (event.type === 'done') {
+            setProgress('concluido', 100, 'finalizado');
+            setStepStatus(1, 'concluido'); setStepStatus(2, 'concluido'); setStepStatus(3, 'concluido');
+            log('clonagem concluida com sucesso', 'ok');
+            toast('clonagem concluida', 'ok');
+            if ($('settingHistory').checked) saveHistory({ time: ts(), origin: state.origin.name, dest: state.destination.name, success: true });
+          } else if (event.type === 'error') { throw new Error(event.msg); }
+        } catch (_) {}
+      }
+    }
+  } catch (e) {
+    log('erro: ' + e.message, 'error');
+    toast('erro na clonagem', 'error');
+    if ($('settingHistory').checked) saveHistory({ time: ts(), origin: state.origin.name, dest: state.destination.name, success: false });
+  } finally {
+    state.cloning = false;
+    btn.classList.remove('loading');
+    setTimeout(hideProgress, 2000);
+    updateCloneBtn();
+  }
+};
+
+const downloadZip = async () => {
+  if (!state.zipOrigin) return;
+  const btn = $('downloadZipBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  log('gerando zip de ' + state.zipType + '...', 'step');
+  try {
+    const r = await fetch('/api/download-zip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ serverId: state.zipOrigin.id, type: state.zipType })
+    });
+    if (!r.ok) {
+      let msg = 'falha ao gerar zip';
+      try {
+        const data = await r.json();
+        if (data && data.error) msg = data.error;
+      } catch (_) {}
+      throw new Error(msg);
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = state.zipOrigin.name + '-' + state.zipType + '.zip';
+    a.click();
+    URL.revokeObjectURL(url);
+    log('zip baixado: ' + state.zipOrigin.name + '-' + state.zipType + '.zip', 'ok');
+    toast('zip baixado', 'ok');
+  } catch (e) {
+    log('erro ao gerar zip: ' + e.message, 'error');
+    toast('erro ao gerar zip', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    updateZipBtn();
+  }
+};
+
+const sendWebhookZip = async () => {
+  const webhookUrl = $('webhookUrl').value.trim();
+  if (!state.zipOrigin || !webhookUrl) return;
+  const btn = $('sendWebhookBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  log('enviando zip via webhook...', 'step');
+  try {
+    const r = await fetch('/api/webhook-zip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ serverId: state.zipOrigin.id, type: state.zipType, webhookUrl })
+    });
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const event = JSON.parse(line);
+          if (event.type === 'log') log(event.msg, event.level);
+          else if (event.type === 'done') { log('zip enviado com sucesso via webhook', 'ok'); toast('zip enviado', 'ok'); }
+          else if (event.type === 'error') throw new Error(event.msg);
+        } catch (_) {}
+      }
+    }
+  } catch (e) {
+    log('erro ao enviar zip: ' + e.message, 'error');
+    toast('erro ao enviar zip', 'error');
+  } finally {
+    btn.classList.remove('loading');
+    updateZipBtn();
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!token) { window.location.href = '/pages/login.html'; return; }
+
+  const userRaw = sessionStorage.getItem('discord_user');
+  if (userRaw) {
+    try {
+      const u = JSON.parse(userRaw);
+      $('sessionName').textContent = u.global_name || u.username;
+      $('sessionVersion').textContent = VERSION;
+      if (u.avatar) {
+        const img = mk('img');
+        img.src = 'https://cdn.discordapp.com/avatars/' + u.id + '/' + u.avatar + '.png?size=32';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%';
+        $('sessionAvatar').appendChild(img);
+      } else {
+        $('sessionAvatar').textContent = (u.global_name || u.username || '?').charAt(0).toUpperCase();
+      }
+    } catch (_) {}
+  }
+
+  if (localStorage.getItem('sidebarCollapsed') === '1') {
+    $('sidebar').classList.add('collapsed');
+    $('sidebarOpenBtn').classList.remove('hidden');
+  }
+
+  $('sidebarToggle').addEventListener('click', () => {
+    $('sidebar').classList.add('collapsed');
+    $('sidebarOpenBtn').classList.remove('hidden');
+    localStorage.setItem('sidebarCollapsed', '1');
+  });
+
+  $('sidebarOpenBtn').addEventListener('click', () => {
+    $('sidebar').classList.remove('collapsed');
+    $('sidebarOpenBtn').classList.add('hidden');
+    localStorage.setItem('sidebarCollapsed', '0');
+  });
+
+  $('serverSearch').addEventListener('input', function () { filterSidebar(this.value); });
+
+  $('destinationServer').addEventListener('click', () => {
+    if (state.cloning) return;
+    openPicker('access', 'selecionar destino (com acesso)', (s) => {
+      if (!s.hasAccess) { toast('sem acesso admin neste servidor', 'error'); return; }
+      state.destination = s;
+      renderSlot('destinationServer', s);
+      updateCloneBtn();
+      log('destino: ' + s.name, 'info');
+    });
+  });
+
+  $('originServer').addEventListener('click', () => {
+    if (state.cloning) return;
+    openPicker('all', 'selecionar origem', (s) => {
+      state.origin = s;
+      renderSlot('originServer', s);
+      updateCloneBtn();
+      log('origem: ' + s.name, 'info');
+      document.querySelectorAll('.server-item.active').forEach((i) => i.classList.remove('active'));
+      const found = document.querySelector('.server-item[data-id="' + s.id + '"]');
+      if (found) found.classList.add('active');
+    });
+  });
+
+  $('zipOriginServer').addEventListener('click', () => {
+    openPicker('all', 'selecionar servidor para exportar', (s) => {
+      state.zipOrigin = s;
+      renderSlot('zipOriginServer', s);
+      updateZipBtn();
+    });
+  });
+
+  document.querySelectorAll('.zip-tab').forEach((tab) => {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.zip-tab').forEach((t) => t.classList.remove('active'));
+      this.classList.add('active');
+      state.zipType = this.dataset.type;
+    });
+  });
+
+  $('webhookUrl').addEventListener('input', updateZipBtn);
+  $('downloadZipBtn').addEventListener('click', downloadZip);
+  $('sendWebhookBtn').addEventListener('click', sendWebhookZip);
+
+  $('cloneBtn').addEventListener('click', performClone);
+  $('confirmOk').addEventListener('click', executeClone);
+  $('confirmCancel').addEventListener('click', () => { $('confirmModal').classList.add('hidden'); $('overlay').classList.add('hidden'); });
+
+  $('logoutBtn').addEventListener('click', () => { sessionStorage.clear(); window.location.href = '/pages/login.html'; });
+  $('historyBtn').addEventListener('click', openHistory);
+  $('historyClose').addEventListener('click', () => { $('historyPanel').classList.add('hidden'); $('overlay').classList.add('hidden'); });
+  $('settingsBtn').addEventListener('click', () => { $('settingsPanel').classList.remove('hidden'); $('overlay').classList.remove('hidden'); });
+  $('settingsClose').addEventListener('click', () => { $('settingsPanel').classList.add('hidden'); $('overlay').classList.add('hidden'); });
+  $('reloadBtn').addEventListener('click', () => { loadServers(); toast('recarregando...', 'info'); });
+  $('clearHistoryBtn').addEventListener('click', () => { state.history = []; localStorage.removeItem('cloneHist'); toast('historico limpo', 'info'); });
+  $('clearLogsBtn').addEventListener('click', () => { state.logLines = []; $('consoleOutput').innerHTML = ''; toast('console limpo', 'info'); });
+  $('exportLogsBtn').addEventListener('click', exportLogs);
+  $('overlay').addEventListener('click', closeAllPanels);
+
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+      this.classList.add('active');
+      state.currentFilter = this.dataset.filter || 'all';
+      renderConsole();
+    });
+  });
+
+  $('ctxSetOrigin').addEventListener('click', () => {
+    if (!state.ctxServer) return;
+    state.origin = state.ctxServer;
+    renderSlot('originServer', state.ctxServer);
+    updateCloneBtn();
+    log('origem: ' + state.ctxServer.name, 'info');
+    closeCtx();
+  });
+
+  $('ctxSetDest').addEventListener('click', () => {
+    if (!state.ctxServer || !state.ctxServer.hasAccess) return;
+    state.destination = state.ctxServer;
+    renderSlot('destinationServer', state.ctxServer);
+    updateCloneBtn();
+    log('destino: ' + state.ctxServer.name, 'info');
+    closeCtx();
+  });
+
+  $('ctxFavorite').addEventListener('click', () => {
+    if (!state.ctxServer) return;
+    const id = state.ctxServer.id;
+    const idx = state.favorites.indexOf(id);
+    if (idx >= 0) { state.favorites.splice(idx, 1); toast('removido dos favoritos', 'info'); }
+    else { state.favorites.push(id); toast('adicionado aos favoritos', 'ok'); }
+    localStorage.setItem('fav', JSON.stringify(state.favorites));
+    filterSidebar($('serverSearch').value);
+    closeCtx();
+  });
+
+  document.addEventListener('click', (e) => { if (!$('contextMenu').contains(e.target)) closeCtx(); });
+
+  document.addEventListener('keydown', (e) => {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && e.key === 'Enter') { e.preventDefault(); performClone(); }
+    if (ctrl && e.key === 'r') { e.preventDefault(); loadServers(); }
+    if (ctrl && e.key === 'b') { e.preventDefault(); $('sidebarToggle').click(); }
+    if (ctrl && e.key === 'h') { e.preventDefault(); openHistory(); }
+    if (ctrl && e.key === ',') { e.preventDefault(); $('settingsBtn').click(); }
+    if (e.key === 'Escape') { closeAllPanels(); }
+  });
+
+  loadServers();
+});
+</script>
+</body>
+</html>
