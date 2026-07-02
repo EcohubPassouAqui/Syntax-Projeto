@@ -90,7 +90,6 @@
         interval = null;
     }
 
-    // Pausa o contador se a aba perder o foco (evita redirecionar sozinho enquanto o usuario esta em outra aba) e retoma ao voltar
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             stop();
